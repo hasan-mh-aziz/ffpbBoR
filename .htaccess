@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+	RewriteEngine on
+	# Uncomment if you have a .well-known directory in the root folder, e.g. for the Let's Encrypt challenge
+	# https://tools.ietf.org/html/rfc5785
+	#RewriteRule ^(\.well-known/.*)$ $1 [L]
+	RewriteRule ^$ app/webroot/ [L]
+	RewriteRule (.*) app/webroot/$1 [L]
+	php_value max_input_vars 3000
+	php_value suhosin.get.max_vars 3000
+	php_value suhosin.post.max_vars 3000
+	php_value suhosin.request.max_vars 3000
+</IfModule>
