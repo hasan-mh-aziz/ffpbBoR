@@ -28,28 +28,39 @@ class FfpbTeam extends AppModel {
     	$getTeamNameFromTeams = function($team) {
 		    return $team['FfpbTeam']['team_name'];
 		};
-
     	$teams = $this->find('all');
     	$teamNames = array_map($getTeamNameFromTeams, $teams);
     	$teamsData = array();
 
-		while(! feof($file)) {
+		while(!feof($file)) {
 			$teamData = array();
 			$currentTeamData = fgetcsv($file);
 	  		if (in_array($currentTeamData[1], $teamNames)){
 	  			continue;
 	  		}
-	  		$teamData['FfpbTeam'] = array('team_name' => $currentTeamData[1], 'current_gameweek' => 9);
-	  		$teamData['FfpbPlayer'][0] = array('player_code' => $currentTeamData[2], 'fb_id' => $currentTeamData[3],  'is_team_leader' => 1);
+	  		if($currentTeamData == false){
+	  			break;
+	  		}
+	  		$teamData['FfpbTeam'] = array('team_name' => $currentTeamData[1], 'current_gameweek' => 10);
+	  		$teamData['FfpbPlayer'][0] = array('player_name' => $currentTeamData[2], 'player_code' => $currentTeamData[3],  'is_team_leader' => 1);
 	  		$numberOfGeneralMember = 4;
 	  		for($i = 1; $i <= $numberOfGeneralMember; $i++) {
-	  			array_push($teamData['FfpbPlayer'], array('player_code' => $currentTeamData[($i + 1) * 2], 'fb_id' => $currentTeamData[($i + 1) * 2 + 1]));
+	  			array_push($teamData['FfpbPlayer'], array('player_name' => $currentTeamData[($i + 1) * 2], 'player_code' => $currentTeamData[($i + 1) * 2 + 1]));
 	  		}
+	  		$groupInformation = $currentTeamData[($i + 1)*2];
+	  		preg_match_all("!\d+!", $groupInformation, $group);
+	  		preg_match_all('/[a-z]/i', $groupInformation, $subgroup);
+	  		// debug($currentTeamData[1]);
+	  		// debug($subgroup[0][0]);
+	  		$teamData['FfpbTeam']['group_id'] = $group[0][0];
+	  		$teamData['FfpbTeam']['subgroup_id'] = $subgroup[0][0];
 	  		array_push($teamsData, $teamData);
+	  		// debug($currentTeamData);
 	  	}
 	  	$this->saveMany($teamsData, array('deep' => true));
     	//debug($teamsData);
   		// exit();
+  		debug($teamsData);
 
 		fclose($file);
 

@@ -29,25 +29,27 @@ class FfpbTeamsController extends AppController {
 		//$this->autoRender = false;
 
 		$teams = $this->FfpbTeam->find('all');
-	    	$teamNames = array();
-	    	$teamSubgroups = array();
-	    	$teamsByGroup = array(
-	    		'A' => array(),
-	    		'B' => array(),
-	    		);
-	    	$possibleGroups = array('A', 'B');
+    	$teamNames = array();
+    	$teamSubgroups = array();
+    	$teamsByGroup = array(
+    		'1' => array(),
+    		'2' => array(),
+    		);
+    	$possibleGroups = array('1', '2');
 		foreach ($teams as $key => $value) {
 			$currentTeamGroupId = $value['FfpbTeam']['group_id'];
 			$currentTeamSubGroupId = $value['FfpbTeam']['subgroup_id'];
 			$currentTeamSubGroupEntryPosition = $value['FfpbTeam']['subgroup_entry_position'];
 			$teamNames[$value['FfpbTeam']['id']] = $value['FfpbTeam']['team_name'];
 			$teamSubgroups[$value['FfpbTeam']['id']] = $currentTeamGroupId  . $currentTeamSubGroupId;
-			if ($currentTeamSubGroupId != 0) {
-				if (!isset($teamsByGroup[$possibleGroups[$currentTeamGroupId - 1]][$currentTeamSubGroupId])) {
-					$teamsByGroup[$possibleGroups[$currentTeamGroupId - 1]][$currentTeamSubGroupId] = array();
+			if (true) {
+				// debug($currentTeamGroupId);
+				// debug($teamsByGroup[$currentTeamGroupId]);
+				if (!isset($teamsByGroup[$currentTeamGroupId][$currentTeamSubGroupId])) {
+					$teamsByGroup[$currentTeamGroupId][$currentTeamSubGroupId] = array();
 				}
-				//array_push($teamsByGroup[$possibleGroups[$currentTeamGroupId  - 1]][$currentTeamSubGroupId], $value['FfpbTeam']['team_name']);
-				$teamsByGroup[$possibleGroups[$currentTeamGroupId  - 1]][$currentTeamSubGroupId][$currentTeamSubGroupEntryPosition] = $value;
+				array_push($teamsByGroup[$currentTeamGroupId][$currentTeamSubGroupId], $value);
+				// $teamsByGroup[$currentTeamGroupId][$currentTeamSubGroupId][$currentTeamSubGroupEntryPosition] = $value;
 			} 
 		}
 		
@@ -57,7 +59,7 @@ class FfpbTeamsController extends AppController {
 				ksort($teamsByGroup[$group][$subGroupNo]);
 			}
 		}
-		//debug($teamsByGroup );
+		// debug($teamsByGroup );
 		
 
 		if ($this->request->is(array('post', 'put'))) {
@@ -76,8 +78,8 @@ class FfpbTeamsController extends AppController {
 			'controller' => $this->params['controller'],
 			'action' => $this->params['action'],
 			'?' => array(
-				'group_id' => $this->request->data['FfpbTeam']['group_id'],
-				'subgroup_id' => $this->request->data['FfpbTeam']['subgroup_id'],
+				// 'group_id' => $this->request->data['FfpbTeam']['group_id'],
+				// 'subgroup_id' => $this->request->data['FfpbTeam']['subgroup_id'],
 				'id' => $this->request->data['FfpbTeam']['id'],
 				'subgroup_entry_position' => $this->request->data['FfpbTeam']['subgroup_entry_position'],
 				),

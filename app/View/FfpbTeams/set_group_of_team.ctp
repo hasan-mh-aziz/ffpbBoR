@@ -29,7 +29,7 @@
 			?>
 		</div>
 
-		<div style="margin:10px;">
+		<!-- <div style="margin:10px;">
 			<?php 
 				echo $this->Form->input('group_id', array(
 					'options' => array('1' => 'A', '2' => 'B'),
@@ -39,9 +39,9 @@
 					'value' => array_key_exists('group_id', $this->request->query)? $this->request->query['group_id']: ''
 				));
 				?>	
-		</div>
+		</div> -->
 
-		<div style="margin:10px;">
+		<!-- <div style="margin:10px;">
 			<?php
 			$options = array(0, 1, 2, 3, 4, 5, 6, 7, 8);
 			unset($options[0]);
@@ -53,7 +53,7 @@
 			    'value' => array_key_exists('subgroup_id', $this->request->query)? $this->request->query['subgroup_id']: ''
 			));
 			?>
-		</div>
+		</div> -->
 
 		<div style="margin:10px;">
 			<?php
@@ -85,7 +85,7 @@
 				echo '<h4>Sub-Group ' . $subGroupNo . '</h4>';
 				echo '<ol>';
 				foreach ($subGroup as $entryPosition => $team) {
-					echo '<li value="' . $entryPosition . '" style= "margin-left:10px;">' . $team['FfpbTeam']['team_name'] . '<i class="fa fa-plus-circle btn" aria-hidden="true"></i><ol style="display:none">';
+					echo '<li value="' . $team['FfpbTeam']['subgroup_entry_position'] . '" style= "margin-left:10px;">' . $team['FfpbTeam']['team_name'] . '<i class="fa fa-plus-circle btn" aria-hidden="true"></i><ol style="display:none">';
 					foreach ($team['FfpbPlayer'] as $player){
 						$playerFplTeamLink = 'https://fantasy.premierleague.com/a/team/' . $player['player_code'] . '/event/' . $team['FfpbTeam']['current_gameweek'];
 						?>
