@@ -18,7 +18,7 @@
 	    height:     100%;
 	    width:      100%;
 	    background: rgba( 255, 255, 255, .8 ) 
-	                url('img/ajax-loader.gif') 
+	                url('./img/ajax-loader.gif') 
 	                50% 50% 
 	                no-repeat;"
     >
@@ -30,7 +30,37 @@
 	<h4>As it collects data from main Fpl site for each individual player, it will take a minute to collect the data. So, please be patience for a while.</h4>
 	<?php echo $this->Session->flash();?>
 
-	<div class="table">
+	<div class="row" style="margin-top: 40px;">
+		<div class="col-xs-3">
+				<?php 
+					echo $this->Form->input('group_id', array(
+						'options' => array('1' => '1', '2' => '2'),
+						'empty' => 'choose one',
+						'label' => 'Select Group: ',
+						'required' => 'required',
+						'value' => array_key_exists('group_id', $this->request->query)? $this->request->query['group_id']: ''
+					));
+					?>	
+		</div>
+
+		<div class="col-xs-3">
+			<?php
+			$options = array_combine(range('A', 'M'), range('A', 'M'));
+			echo $this->Form->input('subgroup_id', array(
+			    'options' => $options,
+			    'empty' => 'choose one',
+			    'label' => 'Select Sub-Group: ',
+				'required' => 'required',
+			    'value' => array_key_exists('subgroup_id', $this->request->query)? $this->request->query['subgroup_id']: ''
+			));
+			?>
+		</div>
+		<div class="col-xs-3">
+			<button class="btn btn-info" id="showBtn">Show</button>
+		</div>
+	</div>
+
+	<div class="table" style="margin-top: 20px; ">
 		<table id="liveScoreSheet" style="width:95%" class="table fixtureTable">
 			<thead>
 				<tr>

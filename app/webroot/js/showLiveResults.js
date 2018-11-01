@@ -23,6 +23,9 @@ liveScoreTable = $('#liveScoreSheet').DataTable( {
         { "data": "entry2Name" }
     ],
     // "order": [[1, 'asc']],
+    "searching": false,
+    "paging": false,
+    "info": false,
   "columnDefs": [{"className": "dt-center", "targets": "_all"}]
 });
 
@@ -32,14 +35,14 @@ const generateFplTeamViewLinkByFplIdAndGw = (fplId, gameweek) => {
 
 function format (data) {
     // `d` is the original data object for the row
-    var tableHtml = '<table cellpadding="5" cellspacing="0" border="0" style="margin-left:50px;">';
+    var tableHtml = '<table class="table" style="margin-left:50px;">';
+    tableHtml += '<thead><tr><th class="text-center">Name</th><th class="text-center">GW Point</th><th>#Hit</th><th></th>'
+    tableHtml += '<th class="text-center">#Hit</th><th class="text-center">GW Point</th><th class="text-center">Name</th></tr></thead>';
     var team1Length = data.entry1Players.length;
     var team2Length = data.entry2Players.length
     $(data.entry1Players).each(function(index,value){
-      console.log($(data.team1Players).eq(index));
-      console.log(value);
       entry2Players = $(data.entry2Players).eq(index)[0];
-      tableHtml+= '<tr>';
+      tableHtml+= '<tr class="text-center">';
         tableHtml+=  ('<td><a href="' + generateFplTeamViewLinkByFplIdAndGw(this.player.player_code, currentGameweek) + '">'+this.player.player_name+'</a></td>');
         tableHtml+= ('<td>'+(this.playerPoint - this.hitPoint)+'</td>');
         tableHtml+= ('<td>(hits: '+ this.hitPoint/4 +')</td>');
@@ -71,6 +74,7 @@ $('.fixtureTable tbody').on('click', 'td.details-control', function () {
 });
 
 let currentGameweek;
+let hitCount = 0;
 
 const getCurrentGw = () => {
   return new Promise((resolve, reject) => {
@@ -91,6 +95,24 @@ const getCurrentGw = () => {
     });
   });
 };
+
+const setHitCountByGw = (gameWeek) => {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: `${myBaseUrl}/FfpbHitCountControlInGws/getHitCountGw/${gameWeek}`,
+      type: "GET",
+      dataType: 'JSON',
+      success: function(data, textStatus, jqXHR) {
+        console.log(data)
+        hitCount = data[0].FfpbHitCountControlInGw.hitCountControl;
+        resolve()
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+
+      }
+    });
+  });
+};
     
 
 
@@ -98,6 +120,21 @@ const getMatchesByGw = (gameWeek) => {
   return new Promise((resolve, reject) => {
     $.ajax({
       url: `${myBaseUrl}/FfpbMatches/getMatchesByGw/${gameWeek}`,
+      type: 'GET',
+      dataType: 'JSON',
+      success: function (data) {
+        console.log(data);
+        resolve(data);
+    },
+      error: function(err) {console.log(err)},
+    });
+  });
+};
+
+const getMatchesByGwGroupAndSubgroup = (gameWeek, group_id, subgroup_id) => {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: `${myBaseUrl}/FfpbMatches/getMatchesByGwGroupAndSubgroup/${gameWeek}/${group_id}/${subgroup_id}`,
       type: 'GET',
       dataType: 'JSON',
       success: function (data) {
@@ -124,11 +161,27 @@ const getAllTeam = () => {
   });
 };
 
+
+const getTeamsByGropuAndSubGroup = (group_id, subgroup_id) => {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: `${myBaseUrl}/FfpbTeams/getTeamsByGropuAndSubGroup/${group_id}/${subgroup_id}`,
+      type: 'GET',
+      dataType: 'JSON',
+      success: function (data) {
+        console.log(data);
+        resolve(data);
+    },
+      error: function(err) {console.log(err)},
+    });
+  });
+};
+
 const getPlayerPicksByFplIdAndGw = (fplId, gameWeek) => {
   return new Promise((resolve, reject) => {
     $.ajax({
       url: `https://fantasy.premierleague.com/drf/entry/${fplId}/event/${gameWeek}/picks`,
-      type: 'GEt',
+      type: 'GET',
       dataType: 'JSON',
       crossDomain: true,
       success: function (data) {
@@ -155,12 +208,18 @@ const getLiveDataFromFplByGw = (gameWeek) => {
 };
 
 let requests = [];
-const hitCount = 0;
 let teamsData = {};
 
-getCurrentGw()
+$("#showBtn").on("click", function(){
+  const group_id = $("#group_id").val();
+  const subgroup_id = $('#subgroup_id').val();
+  if(!group_id || !subgroup_id){
+    $.alert('Please Select a Group and Sub-group to see the result.');
+    return;
+  }
+  getCurrentGw()
   .then(() => {
-    return getAllTeam();
+    return getTeamsByGropuAndSubGroup(group_id, subgroup_id);
   })
   .then((teams) => {
     teamsData = teams.reduce((accumulator, team) => {
@@ -173,19 +232,21 @@ getCurrentGw()
       });
       return accumulator.concat(currentTeamPlayerPicks);
     }, []);
-    requests.push(getMatchesByGw(currentGameweek));
+    requests.push(getMatchesByGwGroupAndSubgroup(currentGameweek, group_id, subgroup_id));
     requests.push(getLiveDataFromFplByGw(currentGameweek));
+    requests.push(setHitCountByGw(currentGameweek));
     return Promise.all(requests);
   })
   .then((results) => {
     console.log(results);
     const groupMap = { 
-      1: 'A',
-      2: 'B',
+      1: '1',
+      2: '2',
     }
-    const liveDataFromFpl = results[results.length - 1];
-    const matches = results[results.length - 2];
-    results.splice(results.length - 2, 2);
+    results.pop();
+    const liveDataFromFpl = results.pop();
+    const matches = results.pop();
+    // results.splice(results.length - 2, 2);
 
     const playerPicks = results.reduce((accumulator, playerPick) => {
       accumulator[playerPick.entry_history.entry] = playerPick;
@@ -247,7 +308,12 @@ getCurrentGw()
     console.log(matchesData);
     liveScoreTable.rows.add(matchesData).draw( false );
     liveScoreTable.draw();
+  })
+  .catch((err) => {
+    console.log(err);
   });
+});
+  
 console.log(myBaseUrl);
 
 

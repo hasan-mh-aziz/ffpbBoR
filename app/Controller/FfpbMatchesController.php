@@ -70,7 +70,7 @@ class FfpbMatchesController extends AppController {
 
 	}
 
-	public function getMatchesByGw($gameweek = 9) {
+	public function getMatchesByGw($gameweek = 10) {
 		$this->autolayout = false;
 		$this->autoRender = false;
 
@@ -80,6 +80,24 @@ class FfpbMatchesController extends AppController {
 				'recursive' => 0,
 				));
 	    echo json_encode($matches);
+
+
+	}
+
+	public function getMatchesByGwGroupAndSubgroup($gameweek = 10, $group_id, $subgroup_id) {
+		$this->autolayout = false;
+		$this->autoRender = false;
+
+		$matches = $this->FfpbMatch->find('all',
+			array(
+				'conditions' => array('FfpbMatch.gameweek' => $gameweek),
+				'recursive' => 0,
+				));
+		$matchOfGroupAndSubgroup = array_filter($matches, function($match) use ($group_id, $subgroup_id){
+			return ($match['entry1']['group_id'] == $group_id && $match['entry1']['subgroup_id'] == $subgroup_id) ||
+					($match['entry2']['group_id'] == $group_id && $match['entry2']['subgroup_id'] == $subgroup_id);
+		});
+	    echo json_encode(array_values($matchOfGroupAndSubgroup));
 
 
 	}
