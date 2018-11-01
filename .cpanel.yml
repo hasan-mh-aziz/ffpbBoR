@@ -2,3 +2,4 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/user/public_html/ffpbBoR/
+    - /bin/cp app $DEPLOYPATH
