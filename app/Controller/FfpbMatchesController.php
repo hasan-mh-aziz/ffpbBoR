@@ -133,5 +133,11 @@ class FfpbMatchesController extends AppController {
 
 	}
 
+	public function showFixtures() {
+		$this->layout = 'ffpbBoR';
+		// $this->autoRender = false;
+
+	}
+
 
 }

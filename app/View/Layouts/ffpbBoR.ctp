@@ -15,7 +15,10 @@
  */
 
 $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework');
-$cakeVersion = __d('cake_dev', 'CakePHP %s', Configure::version())
+$cakeVersion = __d('cake_dev', 'CakePHP %s', Configure::version());
+
+$currentGwData = json_decode(file_get_contents('https://fantasy.premierleague.com/drf/entry/300023'));
+$currentGameweek = $currentGwData->entry->current_event;
 ?>
 <!DOCTYPE html>
 <html>
@@ -75,7 +78,9 @@ $cakeVersion = __d('cake_dev', 'CakePHP %s', Configure::version())
 			<li class="<?php echo (!empty($this->params['controller']) && !empty($this->params['action']) && ($this->params['controller']=='ffpbMatches') && ($this->params['action']=='showLiveResults') )?'active' :'inactive' ?>">
 				<?php echo $this->Html->link('Live Points', '/ffpbMatches/showLiveResults');?>
 			</li>
-			<li><a href="#">Fixtures</a></li>
+			<li class="<?php echo (!empty($this->params['controller']) && !empty($this->params['action']) && ($this->params['controller']=='ffpbMatches') && ($this->params['action']=='showFixtures') )?'active' :'inactive' ?>">
+				<?php echo $this->Html->link('Fixtures', '/ffpbMatches/showFixtures/'.$currentGameweek);?>
+			</li>
 		</ul>
 		</div>
 	</nav>

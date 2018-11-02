@@ -23,7 +23,7 @@
 				echo '<li><h4>Sub-Group ' . $subGroupNo . '</h4>';
 				echo '<ol>';
 				foreach ($subGroup as $entryPosition => $team) {
-					echo '<li value="' . $entryPosition . '" style= "margin-left:10px;">' . $team['FfpbTeam']['team_name'] . '<i class="fa fa-plus-circle btn" aria-hidden="true"></i><ol style="display:none">';
+					echo '<li value="' . $team['FfpbTeam']['subgroup_entry_position'] . '" style= "margin-left:10px;">' . $team['FfpbTeam']['team_name'] . '<i class="fa fa-plus-circle btn" aria-hidden="true"></i><ol style="display:none">';
 					foreach ($team['FfpbPlayer'] as $player){
 						$playerFplTeamLink = 'https://fantasy.premierleague.com/a/team/' . $player['player_code'] . '/event/' . $team['FfpbTeam']['current_gameweek'];
 						?>

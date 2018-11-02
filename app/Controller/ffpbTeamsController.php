@@ -2,6 +2,7 @@
 
 
 App::uses('AppController', 'Controller');
+App::uses('Sanitize', 'Utility');
 
 class FfpbTeamsController extends AppController {
 
@@ -142,6 +143,7 @@ class FfpbTeamsController extends AppController {
 				ksort($teamsByGroup[$group][$subGroupNo]);
 			}
 		}
+		// debug($teamsByGroup);
 
 
     	$this->set(compact('teamNames', 'teamsByGroup' ));
@@ -162,7 +164,14 @@ class FfpbTeamsController extends AppController {
 		}
 
 		// debug($teamsPlayers);
-		$this->setJsVariables('teamsPlayers', $teamsPlayers);
+		array_walk_recursive($teamsPlayers, function(&$leaf) {
+		    if (is_string($leaf)){
+		       $leaf = Sanitize::clean($leaf, array('encode' => true));
+		       $leaf = trim($leaf);
+		    }
+
+		});
+		$this->setJsVariables('teamsPlayers', ($teamsPlayers));
     	$this->set(compact('teamNames', 'teamsByGroup' ));
 
 	}

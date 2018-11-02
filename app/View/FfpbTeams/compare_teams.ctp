@@ -1,6 +1,6 @@
 <head>
 	<title>
-		Update Team
+		Compare Teams
 	</title>
 </head>
 

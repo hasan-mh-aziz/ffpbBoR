@@ -7,6 +7,7 @@ $.ajaxPrefilter( function (options) {
 });
 
 let currentGameweek;
+console.log(jsVars);
 const teamsPlayers = JSON.parse(jsVars).teamsPlayers;
 
 const setCurrentGw = () => {
@@ -138,15 +139,18 @@ $("#compareBtn").on('click', function() {
     // console.log(teamwiseEplPlayers);
     playersPicks.forEach((playerPicks) => {
       playerPicks.picks.forEach((pick) => {
-        const eplPlayer = eplPlayers[(pick.element) - 1];
-        const eplPlayerName = eplPlayer.first_name + ' ' + eplPlayer.second_name;
-        const eplPlayerTeamId = eplPlayer.team - 1;
+        const pickedEplPlayer = eplPlayers.find((eplPlayer) => eplPlayer.id === pick.element);
+        const eplPlayerName = pickedEplPlayer.first_name + ' ' + pickedEplPlayer.second_name;
+        const eplPlayerTeamId = pickedEplPlayer.team - 1;
         // console.log(eplPlayerName);
 
         if(!teamwiseEplPlayers[eplTeams[eplPlayerTeamId].name].players[eplPlayerName]) {
-          teamwiseEplPlayers[eplTeams[eplPlayerTeamId].name].players[eplPlayerName] = { count: 0};
+          teamwiseEplPlayers[eplTeams[eplPlayerTeamId].name].players[eplPlayerName] = { count: 0, captain: 0};
         }
         teamwiseEplPlayers[eplTeams[eplPlayerTeamId].name].players[eplPlayerName].count++;
+        if(pick.is_captain){
+          teamwiseEplPlayers[eplTeams[eplPlayerTeamId].name].players[eplPlayerName].captain++;
+        }
       })
     });
 
@@ -172,11 +176,19 @@ $("#compareBtn").on('click', function() {
       Object.keys(team1EplPlayers).forEach((teamName) => {
         tableHtml+= '<tr><td colspan="2"><h4>' + teamName + ' vs ' + team1EplPlayers[teamName].opponentTeamName + '</h4></td></tr><tr><td><ul>';
         Object.keys(team1EplPlayers[teamName].players).forEach((playerName) => {
-          tableHtml+= '<li>' + playerName + '- ' + team1EplPlayers[teamName].players[playerName].count + '</li>';
+          tableHtml+= '<li>' + playerName + '- ' + team1EplPlayers[teamName].players[playerName].count;
+          if(team1EplPlayers[teamName].players[playerName].captain > 0){
+            tableHtml+= ' + ' + team1EplPlayers[teamName].players[playerName].captain;
+          }
+          tableHtml+= '</li>';
         })
         tableHtml+= '</ul></td><td><ul>';
         Object.keys(team2EplPlayers[teamName].players).forEach((playerName) => {
-          tableHtml+= '<li>' + playerName + '- ' + team2EplPlayers[teamName].players[playerName].count + '</li>';
+          tableHtml+= '<li>' + playerName + '- ' + team2EplPlayers[teamName].players[playerName].count;
+          if(team2EplPlayers[teamName].players[playerName].captain > 0){
+            tableHtml+= ' + ' + team2EplPlayers[teamName].players[playerName].captain;
+          }
+          tableHtml+= '</li>';
         });
         tableHtml+= '</ul></td></tr>';
       });
