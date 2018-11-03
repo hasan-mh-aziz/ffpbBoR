@@ -133,9 +133,15 @@ class FfpbMatchesController extends AppController {
 
 	}
 
-	public function showFixtures() {
+	public function showFixtures($gameweek) {
 		$this->layout = 'ffpbBoR';
 		// $this->autoRender = false;
+
+		$matches = $this->FfpbMatch->find('all',
+			array(
+				'conditions' => array('FfpbMatch.gameweek' => $gameweek),
+				'recursive' => 0,
+				));
 
 	}
 

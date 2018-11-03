@@ -68,7 +68,7 @@ class FfpbPlayersController extends AppController {
 	}
 
 	public function updatePlayerInMatchesByMatchesData() {
-		$this->autolayout = false;
+		// $this->autolayout = false;
 		$this->autoRender = false;
 		// print_r($this->request->data);
 
@@ -114,7 +114,7 @@ class FfpbPlayersController extends AppController {
 				}
 			}
 
-			echo json_encode($matchesData);
+			echo json_encode($playeresInMatchesDataToUpdate);
 
 		} else {
 			echo json_encode('unauthorized request;');

@@ -73,7 +73,10 @@ const getPlayerPicksByFplIdAndGw = (fplId, gameWeek) => {
       success: function (data) {
         resolve(data);
     },
-      error: function(err) {console.log(err)},
+      error: function(err) {
+        console.log(err);
+        console.log(err.url);
+      },
     });
   });
 };
@@ -188,8 +191,8 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
     })
     .then((results) => {
       const groupMap = { 
-        1: 'A',
-        2: 'B',
+        1: '1',
+        2: '2',
       }
       const liveDataFromFpl = results[results.length - 1];
       const matches = results[results.length - 2];
@@ -305,7 +308,7 @@ $("#updateMatchResultBtn").on('click', function(){
                     .then((hasAuthorization) => {
                       if(hasAuthorization) {
                         isRequestRunning = true;
-                        updateMatchResultByGw(currentGameweek, givenPasscode);
+                        updateMatchResultByGwAndPasscode(currentGameweek, givenPasscode);
                       } else{
                         $.alert("Sorry wrong passcode");
                       }
