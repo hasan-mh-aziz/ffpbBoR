@@ -1,7 +1,7 @@
 $.ajaxPrefilter( function (options) {
   if (options.crossDomain && jQuery.support.cors && options.type !== 'POST') {
     var http = (window.location.protocol === 'http:' ? 'http:' : 'https:');
-    options.url = http + '../apis/enableCORS?corsUrl=' + encodeURIComponent(options.url);
+    options.url = `${myBaseUrl}/apis/enableCORS?corsUrl=` + encodeURIComponent(options.url);
     // options.dataType = 'JSON';
     //options.url = "http://cors.corsproxy.io/url=" + options.url;
     // options.data = $.extend(options.data, { corsUrl : options.url });

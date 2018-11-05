@@ -43,7 +43,7 @@
 	      		?>
 	      		<div style="margin-top: 10px;">
 	      			<legend>Subgroup <?php echo $group.$subGroup ?></legend>
-					<table class="table" id="pointTable<?php echo $subGroup ?>" class="pointTableDisplay" value="<?php echo $subGroup ?>">
+					<table class="table" id="pointTable<?php echo $group.$subGroup ?>" class="pointTableDisplay" value="<?php echo $subGroup ?>">
 						<thead>
 							<tr>
 								<td># Rank</td>
@@ -86,4 +86,4 @@
 	</div>	
 </body>
 
-<!-- <script type="text/javascript" src="js/iccfpl_result.js"></script> -->
+<!-- <script type="text/javascript" src="js/ffpb_point_table.js"></script> -->

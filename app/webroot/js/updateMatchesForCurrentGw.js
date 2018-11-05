@@ -13,6 +13,7 @@ const generateFplTeamViewLinkByFplIdAndGw = (fplId, gameweek) => {
 };
 
 let currentGameweek;
+let hitCount = 0;
 
 const setCurrentGw = () => {
   $.ajax({
@@ -184,8 +185,9 @@ const setHitCountByGw = (gameWeek) => {
 
 const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
   let requests = [];
-  const hitCount = 0;
   let teamsData = {};
+
+  $("#ajaxLoaderDiv").show();
 
   getAllTeam()
     .then((teams) => {
@@ -205,7 +207,7 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
       }, []);
       requests.push(getMatchesByGw(currentGameweek));
       requests.push(getLiveDataFromFplByGw(currentGameweek));
-      requests.push(setHitCountByGw(currentGameweek));
+      requests.push(setHitCountByGw(currentGameweek))
       return Promise.all(requests);
     })
     .then((results) => {
@@ -280,7 +282,6 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
       console.log(matchesData);
 
       const databaseUpdateRequests = [
-        updateTeamsTableByMatchesInfo(matchesData, passcode),
         updateMatchesTableByMatchesInfo(matchesData, passcode),
         updatePlayerInMatchesTableByMatchesInfo(matchesData, passcode),
         ];
@@ -289,6 +290,7 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
     .then((results) => {
       isRequestRunning = false;
       console.log(results);
+      $("#ajaxLoaderDiv").hide();
     })
     .catch((err) => {
       if(err === 'updateAlreadyDone') {

@@ -205,8 +205,10 @@ class FfpbTeamsController extends AppController {
 			// debug($a);
 			$team1Point = $a['FfpbTeam']['win']*3 + $a['FfpbTeam']['draw'];
 			$team2Point = $b['FfpbTeam']['win']*3 + $b['FfpbTeam']['draw'];
-			if ($team1Point == $team2Point) return 0;
-			return ($team1Point < $team1Point) ? 1:-1;
+			if ($team1Point == $team2Point){
+				return $b['FfpbTeam']['score_for'] - $a['FfpbTeam']['score_for'];
+			};
+			return ($team1Point < $team2Point) ? 1:-1;
 		}
 		
 		foreach ($teamsByGroup as $group => $subGroups ) {

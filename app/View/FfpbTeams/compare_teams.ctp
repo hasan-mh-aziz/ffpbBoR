@@ -30,7 +30,7 @@
 	                no-repeat;"
     >
     </div>
-		<h1 style="width:550px; margin:0 auto;">FFPB Battle of Royals season 2</h1>
+		<h1 style="width:550px; margin:0 auto;">FFPB Battle of Royals season 3</h1>
 		<h2 style="width:400px; margin:0 auto;">Compare Teams</h2>
 		<div class="col-xs-12" style="margin-top:50px;" >
 			<div class="col-xs-5">

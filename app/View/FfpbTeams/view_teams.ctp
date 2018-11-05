@@ -14,7 +14,7 @@
 	
 	
 	<div class="container">
-		<h1 style="width:550px; margin:0 auto;">FFPB Battle of Royals season 2</h1>
+		<h1 style="width:550px; margin:0 auto;">FFPB Battle of Royals season 3</h1>
 		<h2 style="margin-top:30px; width:200px; margin:0 auto;">Group List</h2>
 		<?php
 		foreach ($teamsByGroup as $group => $subGroups ) {

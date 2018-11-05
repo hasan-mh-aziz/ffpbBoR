@@ -43,12 +43,14 @@ $currentGameweek = $currentGwData->entry->current_event;
 		echo $this->Html->meta('icon');
 // echo $this->Html->css('cake.generic');
 		echo $this->Html->css('select2.min.css'); 
-		echo $this->Html->css('font-awesome.min');
+		echo $this->Html->css('./fontawesome/css/all.min.css');
+		echo $this->Html->css('./fontawesome/css/fontawesome.min.css');
 		echo $this->Html->css('jquery-confirm.min');  
 
 		// echo $this->Html->script('jquery-3.1.1.min.js'); 
 		echo $this->Html->script('select2.full.min.js');
 		echo $this->Html->script('jquery-confirm.min.js');
+		echo $this->Html->script('fontawesome.min.js');
 
 		echo $this->fetch('meta');
 		echo $this->fetch('css');
