@@ -15,6 +15,7 @@
 	
 	<div class="container">
 		<div id="ajaxLoaderDiv" style="
+		position: absolute;
 		display:	none;
 		text-align: center;
 		vertical-align: middle

@@ -44,11 +44,11 @@ function format (data) {
       entry2Players = $(data.entry2Players).eq(index)[0];
       tableHtml+= '<tr class="text-center">';
         tableHtml+=  ('<td><a href="' + generateFplTeamViewLinkByFplIdAndGw(this.player.player_code, currentGameweek) + '">'+this.player.player_name+'</a></td>');
-        tableHtml+= ('<td>'+(this.playerPoint - this.hitPoint)+'</td>');
+        tableHtml+= ('<td>'+(this.playerPoint)+'</td>');
         tableHtml+= ('<td>(hits: '+ this.hitPoint/4 +')</td>');
         tableHtml+= ('<td ><span style="margin-left:130px;"></span></td>');
         tableHtml+= ('<td>(hits: ' + entry2Players.hitPoint/4 + ')</td>');
-        tableHtml+= ('<td>'+(entry2Players.playerPoint - entry2Players.hitPoint)+'</td>');
+        tableHtml+= ('<td>'+(entry2Players.playerPoint)+'</td>');
         tableHtml+= ('<td><a href="' + generateFplTeamViewLinkByFplIdAndGw(entry2Players.player.player_code, currentGameweek) + '">'+entry2Players.player.player_name+'</a></td>');
       tableHtml+= '</tr>';
   });

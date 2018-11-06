@@ -139,13 +139,16 @@ const getAllTeam = () => {
   });
 };
 
-const getPlayersInMatchByMatchId = (matchId) => {
+const getPlayersInMatchByMatchIds = (matchIds) => {
+	console.log(matchIds)
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: `${myBaseUrl}/ffpbPlayers/getPlayersInMatchByMatchId/${matchId}`,
+      url: `${myBaseUrl}/ffpbPlayers/getPlayersInMatchesByMatchIds`,
       type: 'GET',
+      data: { matchIds },
       dataType: 'JSON',
       success: function (data) {
+		console.log(data)
         resolve(data);
     },
       error: function(err) {console.log(err)},
@@ -172,29 +175,31 @@ const showFixtureByGw = (gameweek) => {
 		fixturesTable.clear();
 		currenGwMatches = matches;
 
-		const playersInMatchesReqs = matches.map((match) => getPlayersInMatchByMatchId(match.FfpbMatch.id));
-		const requests = playersInMatchesReqs.concat([setHitCountByGw(currentGameweek)])
+		// const playersInMatchesReqs = matches.map((match) => getPlayersInMatchByMatchId(match.FfpbMatch.id));
+		// const requests = playersInMatchesReqs.concat([setHitCountByGw(currentGameweek)])
+		const matchIds = matches.map((match) => match.FfpbMatch.id);
+		const requests = [getPlayersInMatchByMatchIds(matchIds), setHitCountByGw(currentGameweek)]
 		return Promise.all(requests);
 	})
 	.then((results) => {
 		results.pop();
-		const palyersInMatches = {};
-		results.map((result) => {
-			result.map((playerInMatch) => {
-				if(!palyersInMatches.hasOwnProperty(playerInMatch.FfpbPlayerInMatch.match_id)){
-					palyersInMatches[playerInMatch.FfpbPlayerInMatch.match_id] = {};
-				}
-				if(!palyersInMatches[playerInMatch.FfpbPlayerInMatch.match_id].hasOwnProperty(playerInMatch.player.team_id)){
-					palyersInMatches[playerInMatch.FfpbPlayerInMatch.match_id][playerInMatch.player.team_id] = [];
-				}
-				palyersInMatches[playerInMatch.FfpbPlayerInMatch.match_id][playerInMatch.player.team_id].push({
-					player_name: playerInMatch.player.player_name,
-					fplLink: generateFplTeamViewLinkByFplIdAndGw(playerInMatch.player.player_code, currentGameweek),
-					hitPoint: playerInMatch.FfpbPlayerInMatch.taken_hit * hitCount,
-					playerPoint: playerInMatch.FfpbPlayerInMatch.earned_point,
-					usedChip: playerInMatch.FfpbPlayerInMatch.used_chip
-				}) 
-			})
+		const palyersInMatches = results.pop();
+		console.log(palyersInMatches);
+		const arrangedPalyersInMatches = {};
+		palyersInMatches.map((playerInMatch) => {
+			if(!arrangedPalyersInMatches.hasOwnProperty(playerInMatch.FfpbPlayerInMatch.match_id)){
+				arrangedPalyersInMatches[playerInMatch.FfpbPlayerInMatch.match_id] = {};
+			}
+			if(!arrangedPalyersInMatches[playerInMatch.FfpbPlayerInMatch.match_id].hasOwnProperty(playerInMatch.player.team_id)){
+				arrangedPalyersInMatches[playerInMatch.FfpbPlayerInMatch.match_id][playerInMatch.player.team_id] = [];
+			}
+			arrangedPalyersInMatches[playerInMatch.FfpbPlayerInMatch.match_id][playerInMatch.player.team_id].push({
+				player_name: playerInMatch.player.player_name,
+				fplLink: generateFplTeamViewLinkByFplIdAndGw(playerInMatch.player.player_code, currentGameweek),
+				hitPoint: playerInMatch.FfpbPlayerInMatch.taken_hit * hitCount,
+				playerPoint: playerInMatch.FfpbPlayerInMatch.earned_point,
+				usedChip: playerInMatch.FfpbPlayerInMatch.used_chip
+			}) 
 		});
 		const groupMap = { 
 			1: '1',
@@ -209,8 +214,10 @@ const showFixtureByGw = (gameweek) => {
 		  matchData.entry1Name = match.entry1.team_name;
 		  matchData.entry2Name = match.entry2.team_name;
 		  matchData.subgroupName = groupMap[match.entry1.group_id] + match.entry1.subgroup_id;
-		  matchData.entry1Players = palyersInMatches[match.FfpbMatch.id][match.FfpbMatch.entry1];
-		  matchData.entry2Players = palyersInMatches[match.FfpbMatch.id][match.FfpbMatch.entry2];
+		  matchData.entry1Players = arrangedPalyersInMatches[match.FfpbMatch.id][match.FfpbMatch.entry1];
+		  matchData.entry2Players = arrangedPalyersInMatches[match.FfpbMatch.id][match.FfpbMatch.entry2];
+		  // matchData.entry1Players = [];
+		  // matchData.entry2Players = [];
 
 		  return matchData;
 		});

@@ -24,7 +24,7 @@
     >
     	Loading
 	</div>
-	<h1 style="width:550px; margin:0 auto;">FFPB Battle of Royals season 2</h1>
+	<h1 style="width:550px; margin:0 auto;">FFPB Battle of Royals season 3</h1>
 	<h2 style="margin-top:30px; width:200px; margin:0 auto;">Matches List</h2>
 	<h3 style="margin-top:30px; width:200px; margin:0 auto;" id="gameweekShow"></h3>
 	<h4>As it collects data from main Fpl site for each individual player, it will take a minute to collect the data. So, please be patience for a while.</h4>
