@@ -5,7 +5,7 @@ class FfpbPlayerInMatch extends AppModel {
     public $name = 'ffpb_player_in_match';
 
     public $belongsTo = array(
-        'team' =>
+        'match' =>
             array(
                 'className' => 'FfpbMatch',
                 // 'joinTable' => 'ingredients_recipes',

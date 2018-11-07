@@ -5,7 +5,7 @@ App::uses('AppController', 'Controller');
 
 
 class FfpbPlayersController extends AppController {
-	public $uses = array('FfpbPlayer', 'FfpbPlayerInMatch', 'FfpbTeam');
+	public $uses = array('FfpbPlayer', 'FfpbPlayerInMatch', 'FfpbTeam', 'FfpbMatch');
 
 /**
  * Displays a view
@@ -135,6 +135,66 @@ class FfpbPlayersController extends AppController {
 
 	}
 
+	public function negatePlayersPoints(){
+		// $this->layout = 'ffpbBoR';
+		$playerFplCodes = array(5705842, 3360349, 1905001, 5741035, 4986175, 5775441, 1334126, 5711416, 5692478);
+		$gameweek = 10;
+
+		$players = $this->FfpbPlayer->find('all',
+			array(
+				'conditions' => array('FfpbPlayer.player_code' => $playerFplCodes),
+				'recursive' => 0,
+		));
+		$players = array_reduce($players, function(&$result, $player){ //key of the array will player_id
+		        $result[$player['FfpbPlayer']['player_id']] = $player;
+		        return $result;
+		    }, array());
+
+		$player_ids = array_map(function ($player){
+			return $player['FfpbPlayer']['player_id'];
+		} , $players);
+		$playersInMatches = $this->FfpbPlayerInMatch->find('all',
+			array(
+				'conditions' => array('FfpbPlayerInMatch.player_id' => $player_ids),
+				'recursive' => 0,
+		));
+		$playersInMatchesFilteredByGw = array_filter($playersInMatches, function ($playerInMatch) use ($gameweek){
+			return $playerInMatch['match']['gameweek'] == $gameweek;
+		});
+		// debug($players);
+		// debug($playersInMatchesFilteredByGw);
+
+		foreach ($playersInMatchesFilteredByGw as $key => $playerInMatch) {
+			$playerId = $playerInMatch['FfpbPlayerInMatch']['player_id'];
+			$playerPoint = $playerInMatch['FfpbPlayerInMatch']['earned_point'];
+			if($playerInMatch['match']['entry1'] == $playerInMatch['player']['team_id']){
+				$matchDataToUpdate = array('entry1_points' => ($playerInMatch['match']['entry1_points'] - $playerInMatch['FfpbPlayerInMatch']['earned_point']));
+				$opponentTeamId = $playerInMatch['match']['entry2'];
+			} else{
+				$matchDataToUpdate = array('entry2_points' => ($playerInMatch['match']['entry2_points'] - $playerInMatch['FfpbPlayerInMatch']['earned_point']));
+				$opponentTeamId = $playerInMatch['match']['entry1'];
+			}
+			// $this->FfpbMatch->read(null, $playerInMatch['FfpbPlayerInMatch']['match_id']);
+			// $this->FfpbMatch->set($matchDataToUpdate);
+			// $this->FfpbMatch->save();
+
+			$teamDataToUpdate = array('score_for' => ($players[$playerId]['team']['score_for'] - $playerPoint));
+			debug($teamDataToUpdate);
+			$this->FfpbTeam->read(null, $playerInMatch['player']['team_id']);
+			$this->FfpbTeam->set($teamDataToUpdate);
+			$this->FfpbTeam->save();
+			$opponentTeamDataToUpdate = array('score_against' => ($players[$playerId]['team']['score_against'] - $playerPoint));
+			$this->FfpbTeam->read(null, $opponentTeamId);
+			$this->FfpbTeam->set($opponentTeamDataToUpdate);
+			$this->FfpbTeam->save();
+
+
+			$playerInMatchDataToUpdate = array('earned_point' => 0, 'taken_hit' => 0);		
+			// $this->FfpbPlayerInMatch->read(null, $playerInMatch['FfpbPlayerInMatch']['id']);
+			// $this->FfpbPlayerInMatch->set($playerInMatchDataToUpdate);
+			// $this->FfpbPlayerInMatch->save();
+		}
+	}
 
 
 }

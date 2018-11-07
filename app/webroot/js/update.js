@@ -13,6 +13,7 @@ const generateFplTeamViewLinkByFplIdAndGw = (fplId, gameweek) => {
 };
 
 let currentGameweek;
+let hitCount = 0;
 
 const setCurrentGw = () => {
   $.ajax({
@@ -172,8 +173,8 @@ const setHitCountByGw = (gameWeek) => {
       dataType: 'JSON',
       success: function(data, textStatus, jqXHR) {
         console.log(data)
-        hitCount = data[0].FfpbHitCountControlInGw.hitCountControl;
-        resolve()
+        hitCount = parseInt(data[0].FfpbHitCountControlInGw.hitCountControl, 10);
+        resolve(hitCount)
       },
       error: function(jqXHR, textStatus, errorThrown) {
 
@@ -184,7 +185,6 @@ const setHitCountByGw = (gameWeek) => {
 
 const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
   let requests = [];
-  const hitCount = 0;
   let teamsData = {};
 
   getAllTeam()
@@ -209,7 +209,10 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
       return Promise.all(requests);
     })
     .then((results) => {
-      results.pop();  //pop out result for seeting hit count
+      console.log(results.pop());  //pop out result for seeting hit count
+      console.log(hitCount);
+      // const excludedPlayerFplCodes = [5705842, 699169, 3360349, 1905001, 5741035, 4986175, 5775441, 1334126, 5711416, 5692478];
+      const excludedPlayerFplCodes = [];
       const groupMap = { 
         1: '1',
         2: '2',
@@ -245,6 +248,9 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
 
           const hitPoint = playerPicks[player.player_code].entry_history.event_transfers_cost * hitCount;
           playerPoint -= hitPoint;
+          if(excludedPlayerFplCodes.includes(parseInt(player.player_code, 10))){
+            playerPoint = 0;
+          }
           matchData.entry1Points+= playerPoint;
           return {
             player,
@@ -265,6 +271,9 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
 
           const hitPoint = playerPicks[player.player_code].entry_history.event_transfers_cost * hitCount;
           playerPoint -= hitPoint
+          if(excludedPlayerFplCodes.includes(parseInt(player.player_code, 10))){
+            playerPoint = 0;
+          }
           matchData.entry2Points+= playerPoint;
           return {
             player,
@@ -281,8 +290,8 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
 
       const databaseUpdateRequests = [
         updateTeamsTableByMatchesInfo(matchesData, passcode),
-        updateMatchesTableByMatchesInfo(matchesData, passcode),
-        updatePlayerInMatchesTableByMatchesInfo(matchesData, passcode),
+        // updateMatchesTableByMatchesInfo(matchesData, passcode),
+        // updatePlayerInMatchesTableByMatchesInfo(matchesData, passcode),
         ];
       return Promise.all(databaseUpdateRequests);
     })
@@ -303,6 +312,7 @@ let givenPasscode;
 let isRequestRunning = false;
 
 $("#updateMatchResultBtn").on('click', function(){
+  // currentGameweek = 10;
   if(isRequestRunning) {
     console.log('running');
     return;
