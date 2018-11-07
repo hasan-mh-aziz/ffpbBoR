@@ -38,6 +38,18 @@ class FfpbPlayersController extends AppController {
 		echo json_encode($playersDataToUpdate);
 	}
 
+	public function getPlayersInMatchByMatchId($matchId){
+		$this->autolayout = false;
+		$this->autoRender = false;
+
+		$playersInMatches = $this->FfpbPlayerInMatch->find('all',
+			array(
+				'conditions' => array('FfpbPlayerInMatch.match_id' => $matchId),
+				'recursive' => 0,
+		));
+		echo json_encode($playersInMatches);
+	}
+
 	public function getPlayersInMatchesByMatchIds(){
 		$this->autolayout = false;
 		$this->autoRender = false;

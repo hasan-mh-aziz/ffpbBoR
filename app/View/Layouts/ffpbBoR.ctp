@@ -95,7 +95,6 @@ $currentGameweek = $currentGwData->entry->current_event;
 		</div>
 		<div id="footer">
 			<?php
-
 				echo $this->Html->script('ffpbBoR.js');  
 			?>
 		</div>

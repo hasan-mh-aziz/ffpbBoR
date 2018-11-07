@@ -248,7 +248,7 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
 
           const hitPoint = playerPicks[player.player_code].entry_history.event_transfers_cost * hitCount;
           playerPoint -= hitPoint;
-          if(excludedPlayerFplCodes.includes(parseInt(player.player_code, 10))){
+          if(excludedPlayerFplCodes.includes(parseInt(player.player_code, 10)) || activeChip !== ""){
             playerPoint = 0;
           }
           matchData.entry1Points+= playerPoint;
@@ -271,7 +271,7 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
 
           const hitPoint = playerPicks[player.player_code].entry_history.event_transfers_cost * hitCount;
           playerPoint -= hitPoint
-          if(excludedPlayerFplCodes.includes(parseInt(player.player_code, 10))){
+          if(excludedPlayerFplCodes.includes(parseInt(player.player_code, 10)) || activeChip !== ""){
             playerPoint = 0;
           }
           matchData.entry2Points+= playerPoint;

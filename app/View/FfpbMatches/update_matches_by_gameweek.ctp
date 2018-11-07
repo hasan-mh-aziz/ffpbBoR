@@ -30,7 +30,7 @@
 	<h4>As it collects data from main Fpl site for each individual player, it will take a minute to collect the data. So, please be patience for a while.</h4>
 	<?php echo $this->Session->flash();?>
 
-	<button class="btn btn-primary" id="updateMatchResultBtn">Update Match Results for Current Gameweek</button>
+	<button class="btn btn-primary" id="updateMatchResultBtn">Update Match Results for Gameweek <?php echo $gameweek; ?></button>
 	
 </body>
 

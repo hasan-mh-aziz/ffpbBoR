@@ -1,7 +1,7 @@
 $.ajaxPrefilter( function (options) {
   if (options.crossDomain && jQuery.support.cors && options.type !== 'POST') {
     var http = (window.location.protocol === 'http:' ? 'http:' : 'https:');
-    options.url = http + '../apis/enableCORS?corsUrl=' + encodeURIComponent(options.url);
+    options.url = http + `${myBaseUrl}/apis/enableCORS?corsUrl=` + encodeURIComponent(options.url);
     // options.dataType = 'JSON';
     //options.url = "http://cors.corsproxy.io/url=" + options.url;
     // options.data = $.extend(options.data, { corsUrl : options.url });
@@ -100,7 +100,7 @@ const getLiveDataFromFplByGw = (gameWeek) => {
 const checkAuthentication = (passcode) => {
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: '../Apis/checkPasscode',
+      url: `${myBaseUrl}/Apis/checkPasscode`,
       type: 'GET',
       data: {passcode},
       dataType: 'JSON',
@@ -212,6 +212,12 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
     })
     .then((results) => {
       results.pop();  //pop out result for seeting hit count
+      // const excludedPlayerFplCodes = [5705842, 699169, 3360349, 1905001, 5741035, 4986175, 5775441, 1334126, 5711416, 5692478];
+      const excludedPlayerFplCodes = varsFromController.excludedPlayerFplCodes;
+      let countExcludedPlayer = 0;
+      const allowedChips = varsFromController.allowedChips;
+      console.log(excludedPlayerFplCodes);
+      console.log(allowedChips);
       const groupMap = { 
         1: '1',
         2: '2',
@@ -247,6 +253,10 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
 
           const hitPoint = playerPicks[player.player_code].entry_history.event_transfers_cost * hitCount;
           playerPoint -= hitPoint;
+          if(excludedPlayerFplCodes.includes(parseInt(player.player_code, 10)) || (activeChip !== "" && !allowedChips.includes(activeChip))){
+            playerPoint = 0;
+            countExcludedPlayer++;
+          }
           matchData.entry1Points+= playerPoint;
           return {
             player,
@@ -267,6 +277,10 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
 
           const hitPoint = playerPicks[player.player_code].entry_history.event_transfers_cost * hitCount;
           playerPoint -= hitPoint
+          if(excludedPlayerFplCodes.includes(parseInt(player.player_code, 10)) || (activeChip !== "" && !allowedChips.includes(activeChip))){
+            playerPoint = 0;
+            countExcludedPlayer++;
+          }
           matchData.entry2Points+= playerPoint;
           return {
             player,
@@ -280,6 +294,7 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
       });
 
       console.log(matchesData);
+      console.log(countExcludedPlayer);
 
       const databaseUpdateRequests = [
         updateMatchesTableByMatchesInfo(matchesData, passcode),
@@ -300,7 +315,13 @@ const updateMatchResultByGwAndPasscode = (gameWeek, passcode) => {
     });
 }
 
-setCurrentGw();
+const varsFromController = JSON.parse(jsVars);
+if(varsFromController.currentGw > 0) {
+  currentGameweek = parseInt(varsFromController.currentGw, 10);
+} else{
+  setCurrentGw();
+}
+
 let givenPasscode;
 let isRequestRunning = false;
 
