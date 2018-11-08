@@ -118,7 +118,7 @@ const updateTeamsTableByMatchesInfo = (matchesData, passcode) => {
   const updateData = {passcode, matchesData};
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: '../FfpbTeams/updateTeams',
+      url: `${myBaseUrl}/FfpbTeams/updateTeams`,
       type: 'PUT',
       data: updateData,
       dataType: 'JSON',
@@ -135,7 +135,7 @@ const updateMatchesTableByMatchesInfo = (matchesData, passcode) => {
   const updateData = {passcode, matchesData};
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: '../FfpbMatches/updateMatchesByMatchesData',
+      url:  `${myBaseUrl}/FfpbMatches/updateMatchesByMatchesData`,
       type: 'PUT',
       data: updateData,
       dataType: 'JSON',
@@ -152,7 +152,7 @@ const updatePlayerInMatchesTableByMatchesInfo = (matchesData, passcode) => {
   const updateData = {passcode, matchesData};
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: '../FfpbPlayers/updatePlayerInMatchesByMatchesData',
+      url: `${myBaseUrl}/FfpbPlayers/updatePlayerInMatchesByMatchesData`,
       type: 'PUT',
       data: updateData,
       dataType: 'JSON',

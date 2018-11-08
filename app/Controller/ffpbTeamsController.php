@@ -259,7 +259,7 @@ class FfpbTeamsController extends AppController {
 				if($matchData['entry1Points'] > $matchData['entry2Points']){
 					$teamsDataToUpdate[$entry1Id]['win'] = $teamsPresentdata[$entry1Id]['win'] + 1;
 				} else if($matchData['entry1Points'] < $matchData['entry2Points']){
-					$teamsDataToUpdate[$entry2Id]['win'] = $teamsPresentdata[$entry1Id]['win'] + 1;
+					$teamsDataToUpdate[$entry2Id]['win'] = $teamsPresentdata[$entry2Id]['win'] + 1;
 				} else {
 					$teamsDataToUpdate[$entry1Id]['draw'] = $teamsPresentdata[$entry1Id]['draw'] + 1;
 					$teamsDataToUpdate[$entry2Id]['draw'] = $teamsPresentdata[$entry2Id]['draw'] + 1;
@@ -276,7 +276,7 @@ class FfpbTeamsController extends AppController {
 				$this->FfpbTeam->set($teamData);
 				$this->FfpbTeam->save();
 			}
-			echo json_encode($teamsDataToUpdate);
+			echo json_encode(array($teamsPresentdata, $teamsDataToUpdate));
 
 		} else {
 			echo json_encode('unauthorized request;');
