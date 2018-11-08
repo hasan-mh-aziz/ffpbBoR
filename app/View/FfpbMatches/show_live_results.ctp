@@ -11,6 +11,7 @@
 
 <body style="margin: 50px;">
 	<div id="ajaxLoaderDiv" style="
+		position: absolute;
 		display:	none;
 	    z-index:    1000;
 	    top:        0;
@@ -18,7 +19,7 @@
 	    height:     100%;
 	    width:      100%;
 	    background: rgba( 255, 255, 255, .8 ) 
-	                url('./img/ajax-loader.gif') 
+	                url(<?php echo $this->webroot . 'img/ajax-loader.gif'; ?>)
 	                50% 50% 
 	                no-repeat;"
     >

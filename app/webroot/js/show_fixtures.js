@@ -26,13 +26,28 @@ fixturesTable = $('#fixtureByGw').DataTable( {
     "searching": true,
     "paging": false,
     "info": false,
-  "columnDefs": [{"className": "dt-center", "targets": "_all"}]
+  	"columnDefs": [{"className": "dt-center", "targets": "_all"}],
+  	"rowCallback": function( row, data, index ) {
+    	// console.log(data);
+    	$(data.entry1Players).each(function(index, value){
+    		if(this.usedChip !== "" || $(data.entry2Players).eq(index)[0].usedChip !== ""){
+    			$('td', row).css('background-color', 'moccasin');
+    		}
+    	});
+	}
 });
+
+const chipsConversion = {
+	"wildcard": "Wildcard",
+	"freehit": "Free Hit",
+	"3xc": "Triple Captain",
+	"bboost": "Bench Boost"
+}
 
 function format (data) {
     // `d` is the original data object for the row
     var tableHtml = '<table class="table" style="margin-left:50px;">';
-    tableHtml += '<thead><tr><th class="text-center">Name</th><th class="text-center">GW Point</th><th>#Hit</th><th></th>'
+    tableHtml += '<thead><tr><th class="text-center">Name</th><th class="text-center">GW Point</th><th class="text-center>#Hit</th><th></th>'
     tableHtml += '<th class="text-center">#Hit</th><th class="text-center">GW Point</th><th class="text-center">Name</th></tr></thead>';
     var team1Length = data.entry1Players.length;
     var team2Length = data.entry2Players.length
@@ -40,11 +55,19 @@ function format (data) {
       entry2Player = $(data.entry2Players).eq(index)[0];
       tableHtml+= '<tr class="text-center">';
         tableHtml+=  ('<td><a href="' + this.fplLink + '">'+ this.player_name+'</a></td>');
-        tableHtml+= ('<td>'+(this.playerPoint)+'</td>');
+        let playerPointText = this.playerPoint;
+        if(this.usedChip !== ""){
+          playerPointText += ` (${chipsConversion[this.usedChip]})`;
+        }
+        tableHtml+= ('<td>'+playerPointText+'</td>');
         tableHtml+= ('<td>(hits: '+ this.hitPoint +')</td>');
         tableHtml+= ('<td ><span style="margin-left:130px;"></span></td>');
         tableHtml+= ('<td>(hits: ' + entry2Player.hitPoint + ')</td>');
-        tableHtml+= ('<td>'+(entry2Player.playerPoint)+'</td>');
+        playerPointText = entry2Player.playerPoint;
+        if(entry2Player.usedChip !== ""){
+          playerPointText += ` (${chipsConversion[entry2Player.usedChip]})`;
+        }
+        tableHtml+= ('<td>'+playerPointText+'</td>');
         tableHtml+= ('<td><a href="' + entry2Player.fplLink + '">'+entry2Player.player_name+'</a></td>');
       tableHtml+= '</tr>';
   });
@@ -164,6 +187,7 @@ let teamsData = {};
 let currenGwMatches = [];
 
 const showFixtureByGw = (gameweek) => {
+	$("#ajaxLoaderDiv").show();
 	getMatchesByGw(gameweek)
 	.then((matches) => {
 		if(matches.length === 0){
@@ -225,6 +249,7 @@ const showFixtureByGw = (gameweek) => {
 		console.log(matchesData);
 		fixturesTable.rows.add(matchesData).draw( false );
 		fixturesTable.draw();
+      	$("#ajaxLoaderDiv").hide();
 	})
 	.catch((err) => {
 		console.log(err);
