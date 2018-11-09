@@ -37,4 +37,4 @@
 
 <!-- <script type="text/javascript" src="js/iccfpl_result.js"></script> -->
 
-<?php echo $this->Html->script('updateMatchesByGw.js'); ?>
+<?php echo $this->Html->script('updateMatchesByGw.js?v='.$jsVersion); ?>

@@ -49,7 +49,11 @@ class AppController extends Controller {
 	}
 	public function beforeRender() {
     	// We are Setting the jsvariables array which holds the variables that will be used in js files.
+		$this->setJsVariables('allowedChips', array());
     	$this->set('jsVars', $this->_jsvariables);
+
+    	$jsVersion = 1.9;
+		$this->set(compact('jsVersion'));
 	}
 
 }

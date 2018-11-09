@@ -8,6 +8,7 @@ $.ajaxPrefilter( function (options) {
   }
 });
 
+const varsFromController = JSON.parse(jsVars);
 liveScoreTable = $('#liveScoreSheet').DataTable( {
     "columns": [
         {
@@ -51,7 +52,7 @@ const chipsConversion = {
 function format (data) {
     // `d` is the original data object for the row
     var tableHtml = '<table class="table" style="margin-left:50px;">';
-    tableHtml += '<thead><tr><th class="text-center">Name</th><th class="text-center">GW Point</th><th class="text-center>#Hit</th><th></th>'
+    tableHtml += '<thead><tr><th class="text-center">Name</th><th class="text-center">GW Point</th><th class="text-center">#Hit</th><th> </th>'
     tableHtml += '<th class="text-center">#Hit</th><th class="text-center">GW Point</th><th class="text-center">Name</th></tr></thead>';
     var team1Length = data.entry1Players.length;
     var team2Length = data.entry2Players.length
@@ -263,6 +264,8 @@ $("#showBtn").on("click", function(){
   })
   .then((results) => {
     console.log(results);
+    let countExcludedPlayer = 0;
+    const allowedChips = varsFromController.allowedChips;
     const groupMap = { 
       1: '1',
       2: '2',
@@ -301,6 +304,10 @@ $("#showBtn").on("click", function(){
 
         const hitPoint = playerPicks[player.player_code].entry_history.event_transfers_cost * hitCount;
         playerPoint -= hitPoint;
+        if((activeChip !== "" && !allowedChips.includes(activeChip))){
+          playerPoint = 0;
+          countExcludedPlayer++;
+        }
         matchData.entry1Points+= playerPoint;
         return {
           player,
@@ -322,6 +329,10 @@ $("#showBtn").on("click", function(){
 
         const hitPoint = playerPicks[player.player_code].entry_history.event_transfers_cost * hitCount;
         playerPoint -= hitPoint
+        if((activeChip !== "" && !allowedChips.includes(activeChip))){
+          playerPoint = 0;
+          countExcludedPlayer++;
+        }
         matchData.entry2Points+= playerPoint;
         return {
           player,

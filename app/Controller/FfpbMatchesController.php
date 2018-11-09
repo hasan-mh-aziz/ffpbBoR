@@ -144,8 +144,8 @@ class FfpbMatchesController extends AppController {
 		$this->layout = 'ffpbBoR';
 
 		$this->setJsVariables('currentGw', $gameweek);
-		$this->setJsVariables('excludedPlayerFplCodes', array(5705842, 699169, 3360349, 1905001, 5741035, 4986175, 5775441, 1334126, 5711416, 5692478));
-		$this->setJsVariables('allowedChips', array('wildcard', 'freehit', 'bboost', '3xc'));
+		$this->setJsVariables('excludedPlayerFplCodes', array());
+		$this->setJsVariables('allowedChips', array());
 		$this->set(compact('gameweek'));
 
 	}

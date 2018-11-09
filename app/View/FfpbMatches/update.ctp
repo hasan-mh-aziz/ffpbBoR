@@ -36,4 +36,4 @@
 
 <!-- <script type="text/javascript" src="js/iccfpl_result.js"></script> -->
 
-<?php echo $this->Html->script('update.js'); ?>
+<?php echo $this->Html->script('update.js?v='.$jsVersion); ?>

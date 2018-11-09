@@ -60,4 +60,4 @@
 
 <!-- <script type="text/javascript" src="js/iccfpl_result.js"></script> -->
 
-<?php echo $this->Html->script('show_fixtures.js'); ?>
+<?php echo $this->Html->script('show_fixtures.js?v='.$jsVersion); ?>

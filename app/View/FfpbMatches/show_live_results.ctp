@@ -83,4 +83,4 @@
 
 <!-- <script type="text/javascript" src="js/iccfpl_result.js"></script> -->
 
-<?php echo $this->Html->script('showLiveResults.js'); ?>
+<?php echo $this->Html->script('showLiveResults.js?v='.$jsVersion); ?>
