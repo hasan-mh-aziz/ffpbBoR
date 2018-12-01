@@ -13,7 +13,7 @@ class FfpbMatchesController extends AppController {
  *
  * @var array
  */
-	public $uses = array('FfpbTeam', 'FfpbMatch');
+	public $uses = array('FfpbTeam', 'FfpbMatch', 'FfpbPlayer');
 
 /**
  * Displays a view
@@ -84,20 +84,51 @@ class FfpbMatchesController extends AppController {
 
 	}
 
-	public function getMatchesByGwGroupAndSubgroup($gameweek = 10, $group_id, $subgroup_id) {
-		$this->autolayout = false;
+
+	public function getMatchesByGwGroupAndSubgroup($gw, $group_id, $subgroup_id) {
+		$this->autoLayout = false;
 		$this->autoRender = false;
 
 		$matches = $this->FfpbMatch->find('all',
 			array(
-				'conditions' => array('FfpbMatch.gameweek' => $gameweek),
-				'recursive' => 0,
-				));
-		$matchOfGroupAndSubgroup = array_filter($matches, function($match) use ($group_id, $subgroup_id){
-			return ($match['entry1']['group_id'] == $group_id && $match['entry1']['subgroup_id'] == $subgroup_id) ||
-					($match['entry2']['group_id'] == $group_id && $match['entry2']['subgroup_id'] == $subgroup_id);
+				'conditions' => array('FfpbMatch.gameweek' => $gw),
+				'recursive' => 1
+			)
+		);
+
+		$filteredMatches = array_filter($matches, function($match) use ($group_id, $subgroup_id){
+			if($match['entry1']['group_id'] == $group_id && $match['entry1']['subgroup_id'] == $subgroup_id){
+				return true;
+			} else if($match['entry2']['group_id'] == $group_id && $match['entry2']['subgroup_id'] == $subgroup_id){
+				return true;
+			}
+			return false;
 		});
-	    echo json_encode(array_values($matchOfGroupAndSubgroup));
+		$playerIds = array_reduce($filteredMatches, function($accumalator, $match){
+			$playerIdsInMatch = array_map(function($player){
+				return $player['player_id'];
+			}, $match['playerInMatch']);
+			return array_merge($accumalator ,$playerIdsInMatch);
+		}, []);
+		$players = $this->FfpbPlayer->findAllByPlayerId($playerIds);
+		foreach ($filteredMatches as $key => $match) {
+			# code...
+			$filteredMatches[$key]['entry1']['players'] = array();
+			$filteredMatches[$key]['entry2']['players'] = array();
+		}
+		foreach ($players as $key => $player) {
+			# code...
+			foreach ($filteredMatches as $key => $match) {
+				# code...
+				if($player['team']['id'] == $match['entry1']['id']){
+					array_push($filteredMatches[$key]['entry1']['players'], $player['FfpbPlayer']);
+				} else if($player['team']['id'] == $match['entry2']['id']){
+					array_push($filteredMatches[$key]['entry2']['players'], $player['FfpbPlayer']);
+				}
+			}
+		}
+		// debug($filteredMatches);
+		echo json_encode($filteredMatches);
 
 
 	}
@@ -138,6 +169,10 @@ class FfpbMatchesController extends AppController {
 
 	}
 
+	public function showFixturesBog($gameweek) {
+		$this->layout = 'ffpbBoR';
+
+	}
 
 
 	public function updateMatchesByGameweek($gameweek = 0) {
@@ -145,10 +180,98 @@ class FfpbMatchesController extends AppController {
 
 		$this->setJsVariables('currentGw', $gameweek);
 		$this->setJsVariables('excludedPlayerFplCodes', array());
-		$this->setJsVariables('allowedChips', array());
 		$this->set(compact('gameweek'));
 
 	}
 
+	public function addFixtureBorAfterGroup($gameweek = 0){
+		$this->layout = 'ffpbBoR';
+
+		$teams = $this->FfpbTeam->find('all');
+		$teamNames = array();
+    	$teamSubgroups = array();
+    	$teamsByGroupBoR = array(
+    		'1' => array(),
+    		'2' => array(),
+    		);
+    	$possibleGroups = array('1', '2');
+		foreach ($teams as $key => $value) {
+			$currentTeamGroupId = $value['FfpbTeam']['group_id'];
+			$currentTeamSubGroupId = $value['FfpbTeam']['subgroup_id'];
+			$currentTeamSubGroupEntryPosition = $value['FfpbTeam']['subgroup_entry_position'];
+			$teamNames[$value['FfpbTeam']['id']] = $value['FfpbTeam']['team_name'];
+			$teamSubgroups[$value['FfpbTeam']['id']] = $currentTeamGroupId  . $currentTeamSubGroupId;
+			if (!isset($teamsByGroupBoR[$currentTeamGroupId][$currentTeamSubGroupId])) {
+				$teamsByGroupBoR[$currentTeamGroupId][$currentTeamSubGroupId] = array();
+			}
+			$tourneyPosition = $value['FfpbTeam']['inBoR'];
+			if($tourneyPosition > 0){
+				$teamsByGroupBoR[$currentTeamGroupId][$currentTeamSubGroupId][$tourneyPosition] = $value;
+			}
+		}
+
+		// debug($teamsByGroupBoR);
+		$matchEntry1s = array('A1', 'C1', 'E1', 'G1', 'H1', 'J1', 'L1', 'B1', 'D1', 'F1', 'I1', 'K1', 'M1');
+		$matchEntry2s = array('B2', 'D2', 'F2', 'I2', 'G2', 'K2', 'M2', 'A2', 'C2', 'E2', 'H2', 'J2', 'L2');
+		$matcheToAdd = array();
+
+		foreach ($teamsByGroupBoR as $group_id => $teamsInGroupBoR) {
+			foreach ($matchEntry1s as  $key => $entry1) {
+				# code...
+				$entry2 = $matchEntry2s[$key];
+				array_push($matcheToAdd, array('gameweek' => $gameweek, 'entry1' => $teamsInGroupBoR[$entry1[0]][$entry1[1]]['FfpbTeam']['id'], 'entry2' => $teamsInGroupBoR[$entry2[0]][$entry2[1]]['FfpbTeam']['id']));
+				array_push($matcheToAdd, array('gameweek' => $gameweek + 1, 'entry1' => $teamsInGroupBoR[$entry1[0]][$entry1[1]]['FfpbTeam']['id'], 'entry2' => $teamsInGroupBoR[$entry2[0]][$entry2[1]]['FfpbTeam']['id']));
+			}
+		}
+			
+		debug($matcheToAdd);
+
+		$this->FfpbMatch->saveMany($matcheToAdd);
+	}
+
+
+
+	public function addFixtureBoGAfterGroup($gameweek = 0){
+		$this->layout = 'ffpbBoR';
+
+		$teams = $this->FfpbTeam->find('all');
+		$teamNames = array();
+    	$teamSubgroups = array();
+    	$teamsByGroupBoG = array(
+    		'1' => array(),
+    		'2' => array(),
+    		);
+    	$possibleGroups = array('1', '2');
+		foreach ($teams as $key => $value) {
+			$currentTeamGroupId = $value['FfpbTeam']['group_id'];
+			$currentTeamSubGroupId = $value['FfpbTeam']['subgroup_id'];
+			$currentTeamSubGroupEntryPosition = $value['FfpbTeam']['subgroup_entry_position'];
+			$teamNames[$value['FfpbTeam']['id']] = $value['FfpbTeam']['team_name'];
+			$teamSubgroups[$value['FfpbTeam']['id']] = $currentTeamGroupId  . $currentTeamSubGroupId;
+			if (!isset($teamsByGroupBoG[$currentTeamGroupId][$currentTeamSubGroupId])) {
+				$teamsByGroupBoG[$currentTeamGroupId][$currentTeamSubGroupId] = array();
+			}
+			$tourneyPosition = $value['FfpbTeam']['inBoG'];
+			if($tourneyPosition > 0){
+				$teamsByGroupBoG[$currentTeamGroupId][$currentTeamSubGroupId][$tourneyPosition] = $value;
+			}
+		}
+
+		// debug($teamsByGroupBoG);
+		$matchEntry1s = array('A1', 'C1', 'E1', 'G1', 'H1', 'J1', 'L1', 'B1', 'D1', 'F1', 'I1', 'K1', 'M1');
+		$matchEntry2s = $matchEntry1s;
+		$matcheToAdd = array();
+
+		foreach ($matchEntry1s as  $key => $entry1) {
+			# code...
+			$entry2 = $matchEntry2s[$key];
+			// array_push($matcheToAdd, array('gameweek' => $gameweek, 'entry1' => $teamsByGroupBoG['1'][$entry1[0]][$entry1[1]]['FfpbTeam']['id'], 'entry2' => $teamsByGroupBoG['2'][$entry2[0]][$entry2[1]]['FfpbTeam']['id']));
+			array_push($matcheToAdd, array('gameweek' => $gameweek + 1, 'entry1' => $teamsByGroupBoG['1'][$entry1[0]][$entry1[1]]['FfpbTeam']['id'], 'entry2' => $teamsByGroupBoG['2'][$entry2[0]][$entry2[1]]['FfpbTeam']['id']));
+		}
+			
+		debug($matcheToAdd);
+		
+		$this->FfpbMatch->saveMany($matcheToAdd);
+	}
 
 }

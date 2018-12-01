@@ -30,7 +30,10 @@ class FfpbTeamsController extends AppController {
 		$this->autoLayout = false;
 		$this->autoRender = false;
 
-		$teams = $this->FfpbTeam->find('all', array('conditions' => array('FfpbTeam.group_id' => $group_id, 'FfpbTeam.subgroup_id' => $subgroup_id)));
+		$teams = $this->FfpbTeam->find('all',
+			array(
+				'conditions' => array('FfpbTeam.group_id' => $group_id, 'FfpbTeam.subgroup_id' => $subgroup_id))
+		);
 
 		echo json_encode($teams);
 
@@ -350,6 +353,75 @@ class FfpbTeamsController extends AppController {
 		}
 
 		debug($teamsDataToUpdate);
+
+
+	}
+
+	public function endGroupRound(){
+		$this->autolayout = false;
+		$this->autoRender = false;
+
+		$teams = $this->FfpbTeam->find('all');
+		$teamNames = array();
+    	$teamSubgroups = array();
+    	$teamsByGroup = array(
+    		'1' => array(),
+    		'2' => array(),
+    		);
+    	$possibleGroups = array('1', '2');
+		foreach ($teams as $key => $value) {
+			$currentTeamGroupId = $value['FfpbTeam']['group_id'];
+			$currentTeamSubGroupId = $value['FfpbTeam']['subgroup_id'];
+			$currentTeamSubGroupEntryPosition = $value['FfpbTeam']['subgroup_entry_position'];
+			$teamNames[$value['FfpbTeam']['id']] = $value['FfpbTeam']['team_name'];
+			$teamSubgroups[$value['FfpbTeam']['id']] = $currentTeamGroupId  . $currentTeamSubGroupId;
+			if (!isset($teamsByGroup[$currentTeamGroupId][$currentTeamSubGroupId])) {
+					$teamsByGroup[$currentTeamGroupId][$currentTeamSubGroupId] = array();
+				}
+				array_push($teamsByGroup[$currentTeamGroupId][$currentTeamSubGroupId], $value);
+		}
+
+		function my_sort($a,$b) {
+			// debug($a);
+			$team1Point = $a['FfpbTeam']['win']*3 + $a['FfpbTeam']['draw'];
+			$team2Point = $b['FfpbTeam']['win']*3 + $b['FfpbTeam']['draw'];
+			if ($team1Point == $team2Point){
+				return $b['FfpbTeam']['score_for'] - $a['FfpbTeam']['score_for'];
+			};
+			return ($team1Point < $team2Point) ? 1:-1;
+		}
+		
+		foreach ($teamsByGroup as $group => $subGroups ) {
+			ksort($teamsByGroup[$group]);
+			foreach ($subGroups as $subGroupNo => $subGroup) {
+				// ksort($teamsByGroup[$group][$subGroupNo]);
+				uasort($teamsByGroup[$group][$subGroupNo],"my_sort");
+			}
+		}
+
+
+		foreach ($teamsByGroup as $group => $subGroups ) {
+			foreach ($subGroups as $subGroupNo => $subGroup) {
+				$groupPosition = 0;
+				$tourneyPos = 0;
+				$flag = True;
+				foreach ($subGroup as $key => $team) {
+					# code...
+					$tourneyPos = ($groupPosition % 2) + 1;
+					$teamId = $team['FfpbTeam']['id'];
+					if($groupPosition > 1){
+						$teamDataToUpdate = array('inBoG' => $tourneyPos);
+					} else{
+						$teamDataToUpdate = array('inBoR' => $tourneyPos);
+					}
+					debug($teamDataToUpdate);
+					$this->FfpbTeam->read(null, $teamId);
+					$this->FfpbTeam->set($teamDataToUpdate);
+					$this->FfpbTeam->save();
+					$groupPosition += 1;
+				}
+			}
+		}
 
 
 	}

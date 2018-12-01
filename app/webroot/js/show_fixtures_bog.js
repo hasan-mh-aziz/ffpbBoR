@@ -230,7 +230,7 @@ const showFixtureByGw = (gameweek) => {
 			2: '2',
 		}
 		let matchesData = currenGwMatches.map((match) => {
-		  if(match.entry1.inBoR < 1){
+		  if(match.entry1.inBoG < 1){
 		  	return;
 		  }
 		  const matchData = {

@@ -244,20 +244,28 @@ $("#showBtn").on("click", function(){
   }
   getCurrentGw()
   .then(() => {
-    return getTeamsByGropuAndSubGroup(group_id, subgroup_id);
+    return getMatchesByGwGroupAndSubgroup(currentGameweek, group_id, subgroup_id);
   })
-  .then((teams) => {
-    teamsData = teams.reduce((accumulator, team) => {
-      accumulator[team.FfpbTeam.team_name] = team;
+  .then((matches) => {
+    teamsData = Object.keys(matches).reduce((accumulator, matchId) => {
+      match = matches[matchId];
+      accumulator[match.entry1.team_name] = match.entry1;
+      accumulator[match.entry1.team_name].FfpbPlayer = match.entry1.players;
+      accumulator[match.entry2.team_name] = match.entry2;
+      accumulator[match.entry2.team_name].FfpbPlayer = match.entry2.players;
       return accumulator;
     }, {});
-    requests = teams.reduce((accumulator, team) => {
-      const currentTeamPlayerPicks = team.FfpbPlayer.map((player) => {
+    requests = Object.keys(matches).reduce((accumulator, matchId) => {
+      match = matches[matchId];
+      const currentTeam1PlayerPicks = match.entry1.players.map((player) => {
         return getPlayerPicksByFplIdAndGw(player.player_code, currentGameweek);
       });
-      return accumulator.concat(currentTeamPlayerPicks);
+      const currentTeam2PlayerPicks = match.entry2.players.map((player) => {
+        return getPlayerPicksByFplIdAndGw(player.player_code, currentGameweek);
+      });
+      return accumulator.concat(currentTeam1PlayerPicks, currentTeam2PlayerPicks);
     }, []);
-    requests.push(getMatchesByGwGroupAndSubgroup(currentGameweek, group_id, subgroup_id));
+    requests.push(Promise.resolve(matches));
     requests.push(getLiveDataFromFplByGw(currentGameweek));
     requests.push(setHitCountByGw(currentGameweek));
     return Promise.all(requests);
@@ -282,8 +290,9 @@ $("#showBtn").on("click", function(){
     // console.log(playerPicks);
     // console.log(liveDataFromFpl);
     // console.log(matches);
-    // console.log(teamsData);
-    const matchesData = matches.map((match) => {
+    console.log(teamsData);
+    const matchesData = Object.keys(matches).map((matchId) => {
+      match = matches[matchId];
       const matchData = {
         'plusSign': '<i class="fa fa-plus-circle" aria-hidden="true"></i>'
       };

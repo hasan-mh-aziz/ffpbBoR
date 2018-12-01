@@ -55,6 +55,8 @@
 								<td>Score Against</td>
 								<td>Score Difference</td>
 								<td>Total Points</td>
+								<td>BoR</td>
+								<td>BoG</td>
 							</tr>
 						</thead>
 						<tbody>
@@ -72,6 +74,8 @@
 					      		<td><?php echo $team['FfpbTeam']['score_against']; ?></td>
 					      		<td><?php echo  $team['FfpbTeam']['score_for'] - $team['FfpbTeam']['score_against']; ?></td>
 					      		<td><?php echo $team['FfpbTeam']['win']*3 + $team['FfpbTeam']['draw']; ?></td>
+					      		<td><?php echo $team['FfpbTeam']['inBoR']; ?></td>
+					      		<td><?php echo $team['FfpbTeam']['inBoG']; ?></td>
 				      		</tr>
 				      		<?php }?>	
 						</tbody>

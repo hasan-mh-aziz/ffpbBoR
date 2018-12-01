@@ -208,5 +208,49 @@ class FfpbPlayersController extends AppController {
 		}
 	}
 
+	public function insertPlayerMatchesByGw($gameweek) {
+		$this->layout = 'ffpbBoR';
+
+		// $players = $this->FfpbPlayer->find('all', array('recursive' => 1));
+		$teams = $this->FfpbTeam->find('all');
+		$playersInMatches = $this->FfpbPlayerInMatch->find('all',
+			array(
+				'conditions' => array('match.gameweek' => $gameweek),
+				'recursive' => 0,
+		));
+
+		$alreadyInsertedMatchIds = array_map(function ($player){
+			return $player['match']['id'];
+		} , $playersInMatches);
+		$alreadyInsertedMatchIds = array_unique($alreadyInsertedMatchIds);
+		$playersMatchesToAdd = array();
+		// debug($alreadyInsertedMatchIds);
+
+		foreach ($teams as $key => $team) {
+			foreach ($team['FfpbPlayer'] as $key => $player) {
+				foreach ($team['matches1'] as $key => $match) {
+					if($match['gameweek'] == $gameweek && !in_array($match['id'], $alreadyInsertedMatchIds)){
+						$playerInMatch = array(
+							'player_id' => $player['player_id'],
+							'match_id' => $match['id'],
+						);
+						array_push($playersMatchesToAdd, $playerInMatch);
+					}
+				}
+				foreach ($team['matches2'] as $key => $match) {
+					if($match['gameweek'] == $gameweek && !in_array($match['id'], $alreadyInsertedMatchIds)){
+						$playerInMatch = array(
+							'player_id' => $player['player_id'],
+							'match_id' => $match['id'],
+						);
+						array_push($playersMatchesToAdd, $playerInMatch);
+					}
+				}
+			}
+		}
+		// debug($playersMatchesToAdd);
+		$this->FfpbPlayerInMatch->saveMany($playersMatchesToAdd);
+	}
+
 
 }

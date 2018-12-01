@@ -83,6 +83,9 @@ $currentGameweek = $currentGwData->entry->current_event;
 			<li class="<?php echo (!empty($this->params['controller']) && !empty($this->params['action']) && ($this->params['controller']=='ffpbMatches') && ($this->params['action']=='showFixtures') )?'active' :'inactive' ?>">
 				<?php echo $this->Html->link('Fixtures', '/ffpbMatches/showFixtures/'.$currentGameweek);?>
 			</li>
+			<li class="<?php echo (!empty($this->params['controller']) && !empty($this->params['action']) && ($this->params['controller']=='ffpbMatches') && ($this->params['action']=='showFixturesBog') )?'active' :'inactive' ?>">
+				<?php echo $this->Html->link('BoG Fixtures', '/ffpbMatches/showFixturesBog/'.$currentGameweek);?>
+			</li>
 		</ul>
 		</div>
 	</nav>
